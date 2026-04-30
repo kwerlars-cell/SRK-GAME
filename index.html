@@ -1,46 +1,61 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-<meta charset="UTF-8">
 <title>My Game</title>
 
 <style>
 body{
   text-align:center;
-  font-family:Arial;
   background:#111;
   color:white;
+  font-family:Arial;
 }
 
-button{
-  padding:15px;
-  font-size:18px;
-  margin-top:20px;
-  cursor:pointer;
+#game{
+  width:300px;
+  height:300px;
+  background:#222;
+  margin:auto;
+  position:relative;
+  overflow:hidden;
 }
 
-#score{
-  font-size:30px;
-  color:lime;
+#player{
+  width:40px;
+  height:40px;
+  background:lime;
+  position:absolute;
+  bottom:10px;
+  left:130px;
 }
 </style>
 </head>
 
 <body>
 
-<h1>🎮 Click Game</h1>
+<h2>🎮 Stage 1</h2>
 
-<p>Score:</p>
-<div id="score">0</div>
+<div id="game">
+  <div id="player"></div>
+</div>
 
-<button onclick="add()">Click Me</button>
+<br>
+
+<button onclick="left()">⬅️</button>
+<button onclick="right()">➡️</button>
 
 <script>
-let score = 0;
+let player = document.getElementById("player");
+let x = 130;
 
-function add(){
-  score++;
-  document.getElementById("score").innerText = score;
+function left(){
+  x -= 20;
+  player.style.left = x + "px";
+}
+
+function right(){
+  x += 20;
+  player.style.left = x + "px";
 }
 </script>
 
