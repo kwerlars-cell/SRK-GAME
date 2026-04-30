@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>My Game</title>
+
+<style>
+body{
+  text-align:center;
+  font-family:Arial;
+  background:#111;
+  color:white;
+}
+
+button{
+  padding:15px;
+  font-size:18px;
+  margin-top:20px;
+  cursor:pointer;
+}
+
+#score{
+  font-size:30px;
+  color:lime;
+}
+</style>
+</head>
+
+<body>
+
+<h1>🎮 Click Game</h1>
+
+<p>Score:</p>
+<div id="score">0</div>
+
+<button onclick="add()">Click Me</button>
+
+<script>
+let score = 0;
+
+function add(){
+  score++;
+  document.getElementById("score").innerText = score;
+}
+</script>
+
+</body>
+</html>
