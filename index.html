@@ -1,94 +1,186 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<title>Game Mode 2</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Zombie Game</title>
 
 <style>
-body{
-  margin:0;
-  background:#111;
-  color:white;
-  font-family:Arial;
-  text-align:center;
-}
+  body {
+    margin: 0;
+    font-family: Arial;
+    background: #0b0f14;
+    overflow: hidden;
+    color: white;
+  }
 
-#game{
-  width:300px;
-  height:300px;
-  background:#222;
-  margin:20px auto;
-  position:relative;
-  overflow:hidden;
-}
+  /* ===== الشاشات ===== */
+  .screen {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    display: none;
+  }
 
-#player{
-  width:40px;
-  height:40px;
-  background:lime;
-  position:absolute;
-  bottom:10px;
-  left:130px;
-}
+  .active {
+    display: block;
+  }
 
-#coin{
-  width:25px;
-  height:25px;
-  background:gold;
-  position:absolute;
-  top:10px;
-  left:100px;
-  border-radius:50%;
-}
+  /* ===== القائمة ===== */
+  #menu {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 15px;
+  }
+
+  h1 {
+    font-size: 40px;
+    margin-bottom: 30px;
+  }
+
+  button {
+    width: 200px;
+    padding: 12px;
+    border: none;
+    border-radius: 10px;
+    font-size: 18px;
+    background: #1f6fff;
+    color: white;
+  }
+
+  button:active {
+    transform: scale(0.95);
+  }
+
+  /* ===== HUD ===== */
+  #hud {
+    position: absolute;
+    top: 10px;
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    padding: 0 15px;
+    font-size: 16px;
+    z-index: 10;
+  }
+
+  /* ===== شريط الدم ===== */
+  .hp-container {
+    width: 120px;
+    height: 12px;
+    background: #2a2a2a;
+    border-radius: 6px;
+    overflow: hidden;
+    margin-top: 3px;
+  }
+
+  .hp-bar {
+    width: 100%;
+    height: 100%;
+    background: #00ff4c;
+  }
+
+  /* ===== منطقة اللعب ===== */
+  #gameArea {
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(#111, #05070a);
+  }
+
+  /* ===== التحكم ===== */
+  #controls {
+    position: absolute;
+    bottom: 20px;
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    padding: 0 20px;
+  }
+
+  .joystick {
+    width: 80px;
+    height: 80px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 50%;
+  }
+
+  .attack {
+    width: 80px;
+    height: 80px;
+    background: red;
+    border-radius: 50%;
+  }
 </style>
+
 </head>
 
 <body>
 
-<h2>🎮 Mode 2</h2>
-<p>Score: <span id="score">0</span></p>
-
-<div id="game">
-  <div id="player"></div>
-  <div id="coin"></div>
+<!-- ===== القائمة الرئيسية ===== -->
+<div id="menu" class="screen active">
+  <h1>Zombie Survival</h1>
+  <button onclick="startGame()">ابدأ اللعب</button>
+  <button onclick="openShop()">المتجر</button>
+  <button onclick="openSettings()">الإعدادات</button>
 </div>
 
-<button onclick="left()">⬅️</button>
-<button onclick="right()">➡️</button>
+<!-- ===== اللعبة ===== -->
+<div id="game" class="screen">
+  <div id="hud">
+    <div>💰 0</div>
+
+    <div>
+      <div class="hp-container">
+        <div class="hp-bar" id="hp"></div>
+      </div>
+    </div>
+
+    <div>🔫 Knife</div>
+  </div>
+
+  <div id="gameArea"></div>
+
+  <div id="controls">
+    <div class="joystick"></div>
+    <div class="attack"></div>
+  </div>
+</div>
+
+<!-- ===== المتجر ===== -->
+<div id="shop" class="screen">
+  <h2 style="text-align:center; margin-top:50px;">Shop</h2>
+  <button onclick="backMenu()">رجوع</button>
+</div>
+
+<!-- ===== الإعدادات ===== -->
+<div id="settings" class="screen">
+  <h2 style="text-align:center; margin-top:50px;">Settings</h2>
+  <button onclick="backMenu()">رجوع</button>
+</div>
 
 <script>
-let player = document.getElementById("player");
-let coin = document.getElementById("coin");
-let score = 0;
-let x = 130;
-
-function left(){
-  x -= 20;
-  player.style.left = x + "px";
-  check();
-}
-
-function right(){
-  x += 20;
-  player.style.left = x + "px";
-  check();
-}
-
-function moveCoin(){
-  coin.style.left = Math.random()*260 + "px";
-}
-
-function check(){
-  let px = player.offsetLeft;
-  let cx = coin.offsetLeft;
-
-  if(Math.abs(px - cx) < 30){
-    score++;
-    document.getElementById("score").innerText = score;
-    moveCoin();
+  function showScreen(id){
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
   }
-}
 
-moveCoin();
+  function startGame(){
+    showScreen('game');
+  }
+
+  function openShop(){
+    showScreen('shop');
+  }
+
+  function openSettings(){
+    showScreen('settings');
+  }
+
+  function backMenu(){
+    showScreen('menu');
+  }
 </script>
 
 </body>
