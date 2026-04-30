@@ -1,359 +1,249 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-<meta charset="UTF-8" />
+<meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Zombie Game</title>
+<title>Safe Zombie Game</title>
 
 <style>
-  body {
-    margin: 0;
-    font-family: Arial;
-    background: #0b0f14;
-    overflow: hidden;
-    color: white;
-  }
+body{margin:0;overflow:hidden;background:#0b0f14;font-family:Arial;}
 
-  /* ===== الشاشات ===== */
-  .screen {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    display: none;
-  }
+.screen{position:absolute;width:100%;height:100%;display:none;}
+.active{display:block;}
 
-  .active {
-    display: block;
-  }
+#menu{
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  align-items:center;
+  gap:15px;
+  color:white;
+}
 
-  /* ===== القائمة ===== */
-  #menu {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    gap: 15px;
-  }
+button{width:200px;padding:12px;font-size:18px;}
 
-  h1 {
-    font-size: 40px;
-    margin-bottom: 30px;
-  }
+#gameArea{
+  width:100vw;height:100vh;position:relative;
+  background:radial-gradient(#111,#05070a);
+}
 
-  button {
-    width: 200px;
-    padding: 12px;
-    border: none;
-    border-radius: 10px;
-    font-size: 18px;
-    background: #1f6fff;
-    color: white;
-  }
+#player{
+  width:25px;height:25px;background:#00a2ff;
+  position:absolute;
+}
 
-  button:active {
-    transform: scale(0.95);
-  }
+.zombie{
+  width:25px;height:25px;background:#00ff00;
+  position:absolute;
+}
 
-  /* ===== HUD ===== */
-  #hud {
-    position: absolute;
-    top: 10px;
-    width: 100%;
-    display: flex;
-    justify-content: space-between;
-    padding: 0 15px;
-    font-size: 16px;
-    z-index: 10;
-  }
+.boss{
+  width:40px;height:40px;background:red;
+  position:absolute;
+}
 
-  /* ===== HP BAR ===== */
-  .hp-container {
-    width: 120px;
-    height: 12px;
-    background: #2a2a2a;
-    border-radius: 6px;
-    overflow: hidden;
-    margin-top: 3px;
-  }
+#joystick{
+  position:absolute;bottom:20px;left:20px;
+  width:90px;height:90px;background:#ffffff22;
+  border-radius:50%;
+}
 
-  .hp-bar {
-    width: 100%;
-    height: 100%;
-    background: #00ff4c;
-  }
+#stick{
+  width:40px;height:40px;background:#fff5;
+  border-radius:50%;
+  position:absolute;top:25px;left:25px;
+}
 
-  /* ===== اللعبة ===== */
-  #gameArea {
-    width: 100%;
-    height: 100%;
-    background: radial-gradient(#111, #05070a);
-    position: relative;
-  }
-
-  /* ===== اللاعب ===== */
-  #player {
-    width: 25px;
-    height: 25px;
-    background: #00a2ff;
-    border-radius: 5px;
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-  }
-
-  /* ===== التحكم ===== */
-  #controls {
-    position: absolute;
-    bottom: 20px;
-    width: 100%;
-    display: flex;
-    justify-content: space-between;
-    padding: 0 20px;
-  }
-
-  .joystick {
-    width: 90px;
-    height: 90px;
-    background: rgba(255,255,255,0.1);
-    border-radius: 50%;
-    position: relative;
-  }
-
-  .stick {
-    width: 40px;
-    height: 40px;
-    background: rgba(255,255,255,0.4);
-    border-radius: 50%;
-    position: absolute;
-    top: 25px;
-    left: 25px;
-  }
-  .attack {
-    width: 80px;
-    height: 80px;
-    background: red;
-    border-radius: 50%;
-  }
-  #zombie {
-  width: 25px;
-  height: 25px;
-  background: green;
-  position: absolute;
-  border-radius: 5px;
+#attack{
+  position:absolute;bottom:20px;right:20px;
+  width:70px;height:70px;background:red;border-radius:50%;
 }
 </style>
 </head>
 
 <body>
 
-<!-- ===== القائمة ===== -->
+<!-- MENU -->
 <div id="menu" class="screen active">
-  <h1>Zombie Survival</h1>
-  <button onclick="startGame()">ابدأ اللعب</button>
-  <button onclick="openShop()">المتجر</button>
-  <button onclick="openSettings()">الإعدادات</button>
+  <h1 style="color:white;">Zombie Game</h1>
+  <button onclick="start()">ابدأ</button>
 </div>
 
-<!-- ===== اللعبة ===== -->
+<!-- GAME -->
 <div id="game" class="screen">
 
-  <div id="hud">
-    <div>💰 0</div>
-
-    <div class="hp-container">
-      <div class="hp-bar" id="hp"></div>
-    </div>
-
-    <div>🔫 Knife</div>
-  </div>
-
-  <div id="gameArea">
-    <div id="player"></div>
-    <div id="zombie"></div>
-  </div>
-
-  <div id="controls">
-    <div class="joystick" id="joystick">
-      <div class="stick" id="stick"></div>
-    </div>
-
-    <div class="attack"></div>
-  </div>
-
+<div id="gameArea">
+  <div id="player"></div>
 </div>
 
-<!-- ===== المتجر ===== -->
-<div id="shop" class="screen">
-  <h2 style="text-align:center; margin-top:50px;">Shop</h2>
-  <button onclick="backMenu()">رجوع</button>
-</div>
+<div id="joystick"><div id="stick"></div></div>
+<div id="attack"></div>
 
-<!-- ===== الإعدادات ===== -->
-<div id="settings" class="screen">
-  <h2 style="text-align:center; margin-top:50px;">Settings</h2>
-  <button onclick="backMenu()">رجوع</button>
 </div>
 
 <script>
-
-function showScreen(id){
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
+function show(id){
+  document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));
+  document.getElementById(id).classList.add("active");
 }
 
-function startGame(){ showScreen('game'); }
-function openShop(){ showScreen('shop'); }
-function openSettings(){ showScreen('settings'); }
-function backMenu(){ showScreen('menu'); }
+function start(){
+  show("game");
+}
 
-/* ===== PLAYER MOVEMENT ===== */
-let player = document.getElementById("player");
+/* ===== IMPORTANT VARIABLES (TOP) ===== */
+let level = 1;
+let round = 1;
 
-let posX = window.innerWidth / 2;
-let posY = window.innerHeight / 2;
+let x = 200;
+let y = 200;
 
-let moveX = 0;
-let moveY = 0;
+let mx = 0;
+let my = 0;
+
 let speed = 3;
 
-function update(){
-  posX += moveX * speed;
-  posY += moveY * speed;
+let zombies = [];
 
-  player.style.left = posX + "px";
-  player.style.top = posY + "px";
+/* ===== PLAYER ===== */
+let player = document.getElementById("player");
 
-  requestAnimationFrame(update);
+/* ===== GAME SPAWN ===== */
+function spawn(){
+
+  zombies = [];
+
+  document.querySelectorAll(".zombie").forEach(z => z.remove());
+
+  let count = 2 + round + level;
+
+  for(let i=0;i<count;i++){
+
+    let el = document.createElement("div");
+    el.className = "zombie";
+    document.getElementById("gameArea").appendChild(el);
+
+    zombies.push({
+      el: el,
+      x: Math.random()*300,
+      y: Math.random()*300,
+      speed: 1 + level*0.2
+    });
+  }
 }
-update();
+
+/* ===== PLAYER MOVE ===== */
+function updatePlayer(){
+
+  x += mx * speed;
+  y += my * speed;
+
+  player.style.left = x + "px";
+  player.style.top = y + "px";
+
+  requestAnimationFrame(updatePlayer);
+}
+
+/* ===== ZOMBIES MOVE ===== */
+function updateZombies(){
+
+  zombies.forEach(z=>{
+
+    let dx = x - z.x;
+    let dy = y - z.y;
+
+    let d = Math.sqrt(dx*dx + dy*dy);
+
+    if(d === 0) return;
+
+    z.x += (dx/d) * z.speed;
+    z.y += (dy/d) * z.speed;
+
+    z.el.style.left = z.x + "px";
+    z.el.style.top = z.y + "px";
+  });
+
+  requestAnimationFrame(updateZombies);
+}
+
+/* ===== DAMAGE ===== */
+function damage(){
+
+  zombies.forEach(z=>{
+
+    let dx = x - z.x;
+    let dy = y - z.y;
+
+    let d = Math.sqrt(dx*dx + dy*dy);
+
+    if(d < 25){
+      console.log("hit");
+    }
+  });
+
+  requestAnimationFrame(damage);
+}
+
+/* ===== ATTACK ===== */
+document.getElementById("attack").onclick = () => {
+
+  zombies.forEach(z=>{
+
+    let dx = x - z.x;
+    let dy = y - z.y;
+
+    let d = Math.sqrt(dx*dx + dy*dy);
+
+    if(d < 50){
+      z.el.remove();
+    }
+  });
+};
 
 /* ===== JOYSTICK ===== */
-let joystick = document.getElementById("joystick");
+let joy = document.getElementById("joystick");
 let stick = document.getElementById("stick");
 
-let dragging = false;
+let drag = false;
 
-joystick.addEventListener("touchstart", () => {
-  dragging = true;
-});
+joy.addEventListener("touchstart", ()=> drag = true);
 
-joystick.addEventListener("touchend", () => {
-  dragging = false;
-  moveX = 0;
-  moveY = 0;
-
+joy.addEventListener("touchend", ()=>{
+  drag = false;
+  mx = 0;
+  my = 0;
   stick.style.left = "25px";
   stick.style.top = "25px";
 });
 
-joystick.addEventListener("touchmove", (e) => {
-  if (!dragging) return;
+joy.addEventListener("touchmove", (e)=>{
 
-  let rect = joystick.getBoundingClientRect();
+  if(!drag) return;
 
-  let x = e.touches[0].clientX - rect.left - 45;
-  let y = e.touches[0].clientY - rect.top - 45;
+  let r = joy.getBoundingClientRect();
+
+  let xx = e.touches[0].clientX - r.left - 45;
+  let yy = e.touches[0].clientY - r.top - 45;
 
   let max = 30;
 
-  if (x > max) x = max;
-  if (x < -max) x = -max;
-  if (y > max) y = max;
-  if (y < -max) y = -max;
+  if(xx > max) xx = max;
+  if(xx < -max) xx = -max;
+  if(yy > max) yy = max;
+  if(yy < -max) yy = -max;
 
-  stick.style.left = 25 + x + "px";
-  stick.style.top = 25 + y + "px";
+  stick.style.left = 25 + xx + "px";
+  stick.style.top = 25 + yy + "px";
 
-  moveX = x / max;
-  moveY = y / max;
+  mx = xx / max;
+  my = yy / max;
 });
-let zombie = document.getElementById("zombie");
 
-let zX = 100;
-let zY = 100;
-
-let zSpeed = 1.5;
-
-function updateZombie(){
-if (!zombieAlive) return;
-
-let dx = posX - zX;
-let dy = posY - zY;
-
-let dist = Math.sqrt(dx * dx + dy * dy);
-
-zX += (dx / dist) * zSpeed;
-zY += (dy / dist) * zSpeed;
-
-zombie.style.left = zX + "px";
-zombie.style.top = zY + "px";
-
-requestAnimationFrame(updateZombie);
-  let dx = posX - zX;
-  let dy = posY - zY;
-
-  let dist = Math.sqrt(dx*dx + dy*dy);
-
-  zX += (dx / dist) * zSpeed;
-  zY += (dy / dist) * zSpeed;
-
-  zombie.style.left = zX + "px";
-  zombie.style.top = zY + "px";
-
-  requestAnimationFrame(updateZombie);
-}
-updateZombie();
-  let hp = 100;
-let hpBar = document.getElementById("hp");
-
-function checkHit(){
-  let dx = posX - zX;
-  let dy = posY - zY;
-
-  let distance = Math.sqrt(dx*dx + dy*dy);
-
-  // إذا قريب جدًا = ضرر
-  if (distance < 25) {
-    hp -= 0.5; // مقدار الضرر
-
-    if (hp < 0) hp = 0;
-
-    hpBar.style.width = hp + "%";
-  }
-
-  requestAnimationFrame(checkHit);
-}
-
-checkHit();
-  let coins = 0;
-
-let attackBtn = document.querySelector(".attack");
-let zombieAlive = true;
-
-// عند الضغط على زر الهجوم
-attackBtn.addEventListener("click", () => {
-  let dx = posX - zX;
-  let dy = posY - zY;
-
-  let distance = Math.sqrt(dx*dx + dy*dy);
-
-  // إذا الزومبي قريب = قتله
-  if (distance < 50 && zombieAlive) {
-    zombieAlive = false;
-
-    // فلوس
-    coins += 10;
-    document.querySelector("#hud div").innerHTML = "💰 " + coins;
-
-    // رجع الزومبي بعد ثانيتين
-    setTimeout(() => {
-      zX = Math.random() * window.innerWidth;
-      zY = Math.random() * window.innerHeight;
-      zombieAlive = true;
-    }, 2000);
-  }
-});
+/* ===== START GAME ===== */
+spawn();
+updatePlayer();
+updateZombies();
+damage();
 </script>
 
 </body>
