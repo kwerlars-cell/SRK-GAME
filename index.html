@@ -276,7 +276,20 @@ let zY = 100;
 let zSpeed = 1.5;
 
 function updateZombie(){
+if (!zombieAlive) return;
 
+let dx = posX - zX;
+let dy = posY - zY;
+
+let dist = Math.sqrt(dx * dx + dy * dy);
+
+zX += (dx / dist) * zSpeed;
+zY += (dy / dist) * zSpeed;
+
+zombie.style.left = zX + "px";
+zombie.style.top = zY + "px";
+
+requestAnimationFrame(updateZombie);
   let dx = posX - zX;
   let dy = posY - zY;
 
@@ -313,6 +326,34 @@ function checkHit(){
 }
 
 checkHit();
+  let coins = 0;
+
+let attackBtn = document.querySelector(".attack");
+let zombieAlive = true;
+
+// عند الضغط على زر الهجوم
+attackBtn.addEventListener("click", () => {
+  let dx = posX - zX;
+  let dy = posY - zY;
+
+  let distance = Math.sqrt(dx*dx + dy*dy);
+
+  // إذا الزومبي قريب = قتله
+  if (distance < 50 && zombieAlive) {
+    zombieAlive = false;
+
+    // فلوس
+    coins += 10;
+    document.querySelector("#hud div").innerHTML = "💰 " + coins;
+
+    // رجع الزومبي بعد ثانيتين
+    setTimeout(() => {
+      zX = Math.random() * window.innerWidth;
+      zY = Math.random() * window.innerHeight;
+      zombieAlive = true;
+    }, 2000);
+  }
+});
 </script>
 
 </body>
