@@ -129,13 +129,19 @@
     top: 25px;
     left: 25px;
   }
-
   .attack {
     width: 80px;
     height: 80px;
     background: red;
     border-radius: 50%;
   }
+  #zombie {
+  width: 25px;
+  height: 25px;
+  background: green;
+  position: absolute;
+  border-radius: 5px;
+}
 </style>
 </head>
 
@@ -164,6 +170,7 @@
 
   <div id="gameArea">
     <div id="player"></div>
+    <div id="zombie"></div>
   </div>
 
   <div id="controls">
@@ -261,7 +268,30 @@ joystick.addEventListener("touchmove", (e) => {
   moveX = x / max;
   moveY = y / max;
 });
+let zombie = document.getElementById("zombie");
 
+let zX = 100;
+let zY = 100;
+
+let zSpeed = 1.5;
+
+function updateZombie(){
+
+  let dx = posX - zX;
+  let dy = posY - zY;
+
+  let dist = Math.sqrt(dx*dx + dy*dy);
+
+  zX += (dx / dist) * zSpeed;
+  zY += (dy / dist) * zSpeed;
+
+  zombie.style.left = zX + "px";
+  zombie.style.top = zY + "px";
+
+  requestAnimationFrame(updateZombie);
+}
+
+updateZombie();
 </script>
 
 </body>
