@@ -290,8 +290,29 @@ function updateZombie(){
 
   requestAnimationFrame(updateZombie);
 }
-
 updateZombie();
+  let hp = 100;
+let hpBar = document.getElementById("hp");
+
+function checkHit(){
+  let dx = posX - zX;
+  let dy = posY - zY;
+
+  let distance = Math.sqrt(dx*dx + dy*dy);
+
+  // إذا قريب جدًا = ضرر
+  if (distance < 25) {
+    hp -= 0.5; // مقدار الضرر
+
+    if (hp < 0) hp = 0;
+
+    hpBar.style.width = hp + "%";
+  }
+
+  requestAnimationFrame(checkHit);
+}
+
+checkHit();
 </script>
 
 </body>
