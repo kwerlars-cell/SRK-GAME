@@ -1,1 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>My Page</title>
+</head>
 
+<body style="text-align:center; font-family:Arial; background:#111; color:white;">
+
+<h1>👋 أهلاً بك</h1>
+
+<p>هذه أول صفحة لي في البرمجة</p>
+
+<button onclick="changeText()">اضغط هنا</button>
+
+<p id="text">أنا أتعلم البرمجة 🔥</p>
+
+<script>
+function changeText(){
+  document.getElementById("text").innerText = "تم تغيير النص بنجاح 👍";
+}
+</script>
+
+</body>
+</html>
