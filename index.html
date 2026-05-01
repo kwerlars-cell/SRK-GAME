@@ -3,318 +3,304 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>SRK SURVIVAL - BROWSER OPTIMIZED</title>
+    <title>SRK SURVIVAL - PRO EFFECTS</title>
     <style>
-        /* نظام التصفير وضمان ملء الشاشة الحقيقي */
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; user-select: none; touch-action: none; }
-        body, html { 
-            width: 100%; height: 100%; 
-            overflow: hidden; background: #000; 
-            position: fixed; font-family: sans-serif;
-            /* دعم مساحات الآيفون والاندرويد الجديدة */
-            padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
-        }
-        
-        canvas { display: block; width: 100vw; height: 100vh; position: fixed; top: 0; left: 0; z-index: 1; }
+        body, html { width: 100%; height: 100%; overflow: hidden; background: #000; position: fixed; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        canvas { display: block; width: 100vw; height: 100vh; }
 
-        /* زر الفول سكرين - مكان استراتيجي */
-        #fs-toggle {
-            position: fixed; top: 15px; right: 15px; z-index: 9999;
-            width: 40px; height: 40px; background: rgba(0,0,0,0.6);
-            border: 2px solid #fff; border-radius: 50%;
-            display: flex; align-items: center; justify-content: center; pointer-events: auto;
-        }
+        .overlay { position: fixed; inset: 0; z-index: 1000; background: rgba(0,0,0,0.95); display: flex; flex-direction: column; align-items: center; justify-content: center; color: white; }
+        .btn { width: 220px; padding: 15px; margin: 10px; background: #1a1a1a; color: #fff; border: 2px solid #444; border-radius: 12px; font-size: 18px; text-align: center; cursor: pointer; transition: 0.2s; }
+        .btn:active { background: #333; transform: scale(0.95); }
+        .btn-locked { opacity: 0.3; cursor: not-allowed; border-color: #222; }
+        input { padding: 12px; border-radius: 8px; border: 1px solid #555; width: 250px; text-align: center; margin-bottom: 15px; background: #222; color: #fff; font-size: 16px; }
 
-        /* تنسيق القوائم لتعمل في أي حجم متصفح */
-        .overlay { 
-            position: fixed; inset: 0; z-index: 1000; 
-            background: rgba(0,0,0,0.95); 
-            display: flex; flex-direction: column; 
-            align-items: center; justify-content: center; 
-            color: white; text-align: center;
-            overflow-y: auto; /* للسماح بالتمرير إذا الشاشة صغيرة جداً */
-        }
+        #fs-btn { position: fixed; top: 20px; right: 20px; z-index: 1100; background: rgba(255,255,255,0.2); border: 1px solid #555; color: white; padding: 10px 15px; border-radius: 8px; cursor: pointer; font-size: 12px; font-weight: bold; }
 
-        .btn { width: 220px; padding: 12px; margin: 8px; background: #1a1a1a; color: #fff; border: 2px solid #444; border-radius: 12px; font-size: 16px; font-weight: bold; cursor: pointer; pointer-events: auto; }
-        input { padding: 12px; border-radius: 8px; border: 1px solid #555; font-size: 16px; text-align: center; margin-bottom: 15px; width: 80%; max-width: 280px; background: #222; color: #fff; }
-
-        /* الـ HUD - الأزرار داخل اللعبة */
         #hud { position: fixed; inset: 0; pointer-events: none; display: none; z-index: 500; }
-        
-        .hud-stats { position: absolute; top: 15px; left: 15px; }
-        .bar-container { width: 120px; height: 12px; background: #111; border: 1px solid #555; border-radius: 6px; margin-bottom: 5px; overflow: hidden; }
-        #hp-bar { width: 100%; height: 100%; background: #e74c3c; }
-        #st-bar { width: 100%; height: 100%; background: #f1c40f; }
-        
-        /* الجويستيك - وضعية مرنة */
-        #joy-base { 
-            position: absolute; bottom: 10%; left: 10%; 
-            width: 80px; height: 80px; 
-            background: rgba(255,255,255,0.1); border-radius: 50%; 
-            border: 2px solid rgba(255,255,255,0.2); pointer-events: auto; 
-        }
-        #joy-stick { position: absolute; top: 20px; left: 20px; width: 40px; height: 40px; background: rgba(255,255,255,0.4); border-radius: 50%; }
-        
-        /* أزرار الأكشن - رفعناها قليلاً عن الحافة لضمان الظهور */
-        #action-bar { 
-            position: absolute; bottom: 10%; right: 5%; 
-            display: flex; align-items: center; gap: 10px; pointer-events: auto; 
-        }
-        .control-btn { width: 55px; height: 55px; background: rgba(30,30,30,0.8); border: 2px solid #555; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 22px; }
-        #atk-btn { width: 90px; height: 90px; background: rgba(231, 76, 60, 0.4); border: 4px solid #fff; font-size: 40px; border-radius: 50%; }
+        .stats-box { position: absolute; top: 20px; left: 20px; }
+        .bar { width: 140px; height: 12px; background: #111; border: 1px solid #444; border-radius: 6px; margin-bottom: 4px; overflow: hidden; }
+        #hp-fill { width: 100%; height: 100%; background: #e74c3c; transition: 0.3s; }
+        #st-fill { width: 100%; height: 100%; background: #f1c40f; }
 
-        /* المراحل */
-        .lvl-grid { display: flex; gap: 10px; margin-top: 15px; }
-        .lvl-node { width: 60px; height: 60px; background: #222; border: 2px solid #444; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: bold; color: #555; }
-        .lvl-active { border-color: #f1c40f; color: #f1c40f; }
+        #joy-base { position: absolute; bottom: 12%; left: 8%; width: 90px; height: 90px; background: rgba(255,255,255,0.1); border-radius: 50%; border: 2px solid rgba(255,255,255,0.2); pointer-events: auto; }
+        #joy-stick { position: absolute; top: 25px; left: 25px; width: 40px; height: 40px; background: #fff; border-radius: 50%; opacity: 0.4; }
         
-        #round-info { position: fixed; top: 15px; width: 100%; text-align: center; color: #fff; font-size: 22px; font-weight: bold; pointer-events: none; z-index: 400; display: none; }
+        #action-bar { position: absolute; bottom: 12%; right: 8%; display: flex; align-items: center; gap: 15px; pointer-events: auto; }
+        .ctrl-btn { width: 60px; height: 60px; background: rgba(30,30,30,0.8); border: 2px solid #555; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px; }
+        #atk-btn { width: 100px; height: 100px; background: #e74c3c; border: 4px solid #fff; border-radius: 50%; }
+
+        #round-txt { position: fixed; top: 20%; width: 100%; text-align: center; color: #f1c40f; font-size: 40px; font-weight: bold; pointer-events: none; z-index: 600; display: none; text-shadow: 2px 2px 10px #000; }
+        
+        table { width: 90%; max-width: 400px; border-collapse: collapse; margin-top: 15px; }
+        th, td { padding: 12px; border-bottom: 1px solid #333; text-align: center; }
     </style>
 </head>
 <body>
 
-    <div id="fs-toggle" onclick="toggleFullScreen()">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/></svg>
-    </div>
+    <div id="fs-btn" onclick="toggleFS()">FULLSCREEN</div>
+    <div id="round-txt">ROUND 1</div>
 
     <div id="login-screen" class="overlay">
-        <h1 style="color:#e74c3c; margin-bottom: 10px;">SRK SURVIVAL</h1>
-        <input type="text" id="player-name-input" placeholder="NAME">
-        <div class="btn" onclick="login()">START</div>
+        <h1 style="color:#e74c3c;">SRK SURVIVAL</h1>
+        <input type="text" id="p-name" placeholder="Enter Player Name">
+        <div class="btn" onclick="login()">LOGIN</div>
     </div>
 
     <div id="main-menu" class="overlay" style="display:none">
-        <h2 id="user-welcome" style="color: #f1c40f; margin-bottom: 15px;"></h2>
-        <div class="btn" onclick="startLevel(unlocked)">PLAY</div>
-        <div class="btn" onclick="showScreen('level-menu')">LEVELS</div>
-        <div class="btn" onclick="showScreen('shop-menu')">SHOP</div>
-        <div class="btn" style="background: #2980b9;" onclick="showStats()">RANKING</div>
+        <h2 id="user-display" style="color:#f1c40f;"></h2>
+        <div class="btn" onclick="startLevel(unlocked)">CONTINUE GAME</div>
+        <div class="btn" onclick="showScreen('level-screen')">LEVELS</div>
+        <div class="btn" onclick="openStats()">LEADERBOARD</div>
+        <div class="btn" onclick="showScreen('shop-screen')">SHOP</div>
+    </div>
+
+    <div id="death-screen" class="overlay" style="display:none">
+        <h1 style="color:#e74c3c;">YOU DIED</h1>
+        <div class="btn" onclick="startLevel(currentLvl)">RETRY</div>
+        <div class="btn" onclick="showScreen('main-menu')">MAIN MENU</div>
+    </div>
+
+    <div id="level-screen" class="overlay" style="display:none">
+        <h2>SELECT LEVEL</h2>
+        <div id="btn-L1" class="btn" onclick="tryStartLevel(1)">Level 1</div>
+        <div id="btn-L2" class="btn btn-locked" onclick="tryStartLevel(2)">Level 2 (Locked)</div>
+        <div id="btn-L3" class="btn btn-locked" onclick="tryStartLevel(3)">Level 3 (Locked)</div>
+        <div class="btn" onclick="showScreen('main-menu')">BACK</div>
     </div>
 
     <div id="stats-screen" class="overlay" style="display:none">
         <h2>LEADERBOARD</h2>
-        <table style="width:90%; margin:15px 0; border-collapse:collapse;" id="leaderboard-body">
-            <thead><tr style="color:#f1c40f"><th>NAME</th><th>CASH</th></tr></thead>
+        <table id="stats-table">
+            <thead><tr><th>PLAYER</th><th>CASH</th></tr></thead>
             <tbody></tbody>
         </table>
         <div class="btn" onclick="showScreen('main-menu')">BACK</div>
     </div>
 
-    <div id="level-menu" class="overlay" style="display:none">
-        <h2>SELECT LEVEL</h2>
-        <div class="lvl-grid">
-            <div id="LV1" class="lvl-node" onclick="startLevel(1)">1</div>
-            <div id="LV2" class="lvl-node" onclick="startLevel(2)">2</div>
-            <div id="LV3" class="lvl-node" onclick="startLevel(3)">3</div>
-        </div>
-        <div class="btn" onclick="showScreen('main-menu')" style="margin-top:30px">BACK</div>
-    </div>
-
-    <div id="shop-menu" class="overlay" style="display:none">
-        <h2 id="shop-balance" style="color:#2ecc71; margin-bottom: 15px;">0$</h2>
-        <div class="btn" onclick="buy('gun', 150)">RIFLE (150$)</div>
-        <div class="btn" onclick="buy('hp', 50)">MEDKIT (50$)</div>
+    <div id="shop-screen" class="overlay" style="display:none">
+        <h2 id="shop-cash" style="color: #2ecc71;">0$</h2>
+        <div class="btn" onclick="healPlayer()">BANDAGE (50$)</div>
+        <div class="btn" onclick="buy('gun', 1000)">RIFLE (1000$)</div>
+        <div class="btn" onclick="buy('pistol', 200)">PISTOL (200$)</div>
         <div class="btn" onclick="showScreen('main-menu')">BACK</div>
     </div>
 
-    <div id="death-screen" class="overlay" style="display:none">
-        <h1 style="color:#e74c3c;">DIED</h1>
-        <div class="btn" onclick="startLevel(currentLvl)">RETRY</div>
-        <div class="btn" onclick="showScreen('main-menu')">MENU</div>
-    </div>
-
-    <div id="round-info">ROUND 1</div>
-
     <div id="hud">
-        <div class="hud-stats">
-            <div class="bar-container"><div id="hp-bar"></div></div>
-            <div class="bar-container" style="height:8px"><div id="st-bar"></div></div>
-            <div id="cash-display" style="color:#2ecc71; font-weight:bold;">0$</div>
+        <div class="stats-box">
+            <div class="bar"><div id="hp-fill"></div></div>
+            <div class="bar" style="height:7px;"><div id="st-fill"></div></div>
+            <div id="cash-display" style="color:#2ecc71;">0$</div>
         </div>
         <div id="joy-base"><div id="joy-stick"></div></div>
         <div id="action-bar">
-            <div class="control-btn" onclick="buy('hp', 50)">💊</div>
-            <div id="swap-btn" class="control-btn" style="display:none" onclick="swapWeapon()">🔄</div>
-            <div id="atk-btn" ontouchstart="handleAttack(event)">⚔️</div>
+            <div class="ctrl-btn" onclick="healPlayer()">💊</div>
+            <div id="swap-btn" class="ctrl-btn" onclick="swapWeapon()">🔄</div>
+            <div id="atk-btn" ontouchstart="handleAttack(event)"></div>
         </div>
     </div>
 
     <canvas id="gameCanvas"></canvas>
 
 <script>
-// كود البرمجة (نفس المنطق السابق مع تحسين التجاوب)
 const canvas = document.getElementById("gameCanvas"), ctx = canvas.getContext("2d");
-const WORLD_SIZE = 2500;
-let cam = { x: 0, y: 0 }, playerName = "", allPlayers = JSON.parse(localStorage.getItem('srk_v3')) || {};
-let money = 0, hasGun = false, unlocked = 1;
+const WORLD_SIZE = 4000;
+let playerName = "", money = 0, hasGun = false, hasPistol = false, unlocked = 1;
+let allPlayers = JSON.parse(localStorage.getItem('srk_v_v4')) || {};
 
-function resize() {
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-}
-window.addEventListener('resize', resize);
-window.addEventListener('orientationchange', () => setTimeout(resize, 200));
-resize();
+function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+window.addEventListener('resize', resize); resize();
 
-function toggleFullScreen() {
-    if (!document.fullscreenElement) document.documentElement.requestFullscreen().catch(e => {});
-    else if (document.exitFullscreen) document.exitFullscreen();
+function toggleFS() {
+    if (!document.fullscreenElement) document.documentElement.requestFullscreen().catch(()=>{});
+    else document.exitFullscreen();
 }
 
 function login() {
-    let input = document.getElementById("player-name-input").value.trim().toUpperCase();
-    if(!input) return; playerName = input;
-    if(allPlayers[playerName]) { money = allPlayers[playerName].money; hasGun = allPlayers[playerName].hasGun; unlocked = allPlayers[playerName].unlocked; }
-    else { money = 0; hasGun = false; unlocked = 1; save(); }
-    document.getElementById("user-welcome").innerText = "PLAYER: " + playerName;
+    let val = document.getElementById("p-name").value.trim().toUpperCase();
+    if(!val) return; playerName = val;
+    if(allPlayers[playerName]) { 
+        money = allPlayers[playerName].money || 0; 
+        hasGun = allPlayers[playerName].hasGun || false; 
+        hasPistol = allPlayers[playerName].hasPistol || false;
+        unlocked = allPlayers[playerName].unlocked || 1; 
+    } else { money = 0; hasGun = false; hasPistol = false; unlocked = 1; save(); }
+    document.getElementById("user-display").innerText = "PLAYER: " + playerName;
+    updateLevelButtons();
     showScreen('main-menu');
 }
 
-function save() { allPlayers[playerName] = { money, hasGun, unlocked }; localStorage.setItem('srk_v3', JSON.stringify(allPlayers)); }
+function save() { 
+    if(!playerName) return;
+    allPlayers[playerName] = { money, hasGun, hasPistol, unlocked }; 
+    localStorage.setItem('srk_v_v4', JSON.stringify(allPlayers)); 
+}
 
-function showStats() {
-    const tbody = document.querySelector("#leaderboard-body tbody"); tbody.innerHTML = "";
-    Object.keys(allPlayers).map(k => ({name: k, ...allPlayers[k]})).sort((a,b) => b.money - a.money)
-    .forEach(p => tbody.innerHTML += `<tr><td>${p.name}</td><td>${p.money}$</td></tr>`);
+function updateLevelButtons() {
+    for(let i=1; i<=3; i++) {
+        let b = document.getElementById("btn-L"+i);
+        if(i <= unlocked) { b.classList.remove("btn-locked"); b.innerText = "Level " + i; } 
+        else { b.classList.add("btn-locked"); b.innerText = "Level " + i + " (Locked)"; }
+    }
+}
+
+function tryStartLevel(n) {
+    if(n <= unlocked) startLevel(n);
+    else alert("خلص لفل " + (n-1) + " أول!");
+}
+
+function showScreen(id) {
+    document.querySelectorAll('.overlay').forEach(s => s.style.display='none');
+    document.getElementById(id).style.display='flex';
+    document.getElementById("hud").style.display = (id === 'hud' ? 'block' : 'none');
+    if(id === 'level-screen') updateLevelButtons();
+    syncHUD();
+}
+
+function openStats() {
+    const tbody = document.querySelector("#stats-table tbody");
+    tbody.innerHTML = "";
+    Object.keys(allPlayers).map(name => ({ name, money: allPlayers[name].money }))
+        .sort((a, b) => b.money - a.money)
+        .forEach(p => { tbody.innerHTML += `<tr><td>${p.name}</td><td>${p.money}$</td></tr>`; });
     showScreen('stats-screen');
 }
 
-let gameActive = false, currentLvl = 1, currentRound = 1, waveBusy = false;
-let player = { x: 1250, y: 1250, r: 25, hp: 100, st: 100, wpn: 'knife', lastHit: 0 };
-let zombies = [], bullets = [], buildings = [], joy = { active: false, x: 0, y: 0, lx: 1, ly: 0 };
-
-function showScreen(id) {
-    document.querySelectorAll('.overlay').forEach(s => s.style.display = 'none');
-    document.getElementById(id).style.display = 'flex';
-    document.getElementById("hud").style.display = (id === 'hud') ? 'block' : 'none';
-    if(id === 'level-menu') for(let i=1; i<=3; i++) {
-        let n = document.getElementById("LV"+i);
-        if(n) n.className = (i<=unlocked)?"lvl-node lvl-active":"lvl-node";
-    }
-    sync();
-}
-
-function sync() {
-    save();
+function syncHUD() {
     document.getElementById("cash-display").innerText = money + "$";
-    document.getElementById("shop-balance").innerText = "CASH: " + money + "$";
-    document.getElementById("swap-btn").style.display = hasGun ? "flex" : "none";
+    document.getElementById("shop-cash").innerText = "Balance: " + money + "$";
+    document.getElementById("swap-btn").style.display = (hasGun || hasPistol) ? "flex" : "none";
 }
 
+function healPlayer() { if(money >= 50 && player.hp < 100) { money -= 50; player.hp = 100; syncHUD(); save(); } }
 function buy(type, price) {
     if(money >= price) {
         if(type === 'gun' && !hasGun) { hasGun = true; money -= price; }
-        else if(type === 'hp') { player.hp = 100; money -= price; }
-        sync();
+        if(type === 'pistol' && !hasPistol) { hasPistol = true; money -= price; }
+        syncHUD(); save();
     }
 }
-
 function swapWeapon() {
-    player.wpn = (player.wpn === 'knife' ? 'gun' : 'knife');
-    document.getElementById("atk-btn").innerText = (player.wpn === 'gun' ? '🔫' : '⚔️');
+    if(player.wpn === 'knife') player.wpn = hasGun ? 'gun' : (hasPistol ? 'pistol' : 'knife');
+    else if(player.wpn === 'gun') player.wpn = hasPistol ? 'pistol' : 'knife';
+    else player.wpn = 'knife';
 }
 
-function generateBuildings() {
-    buildings = [];
-    for(let i=0; i<12; i++) {
-        buildings.push({
-            x: Math.random() * (WORLD_SIZE - 400) + 200,
-            y: Math.random() * (WORLD_SIZE - 400) + 200,
-            w: 120 + Math.random() * 100,
-            h: 120 + Math.random() * 100
-        });
+let gameActive = false, currentLvl = 1, currentRound = 1, waveBusy = false;
+let player = { x: 2000, y: 2000, r: 30, hp: 100, st: 100, wpn: 'knife', lastHit: 0 };
+let zombies = [], bullets = [], particles = [], joy = { x: 0, y: 0, active: false, lx: 1, ly: 0 };
+
+function spawnBlood(x, y) {
+    for(let i=0; i<8; i++) {
+        particles.push({ x, y, vx: (Math.random()-0.5)*10, vy: (Math.random()-0.5)*10, life: 1, color: "#e74c3c" });
     }
-}
-
-function isInsideBuilding(x, y) {
-    return buildings.some(b => x > b.x && x < b.x + b.w && y > b.y && y < b.y + b.h);
 }
 
 function startLevel(n) {
     currentLvl = n; currentRound = 1; gameActive = true;
-    player.x = 1250; player.y = 1250; player.hp = 100; player.st = 100;
-    generateBuildings(); zombies = []; bullets = [];
-    showScreen('hud'); document.getElementById("round-info").style.display = "block";
-    spawnWave(); gameLoop();
+    player.x = 2000; player.y = 2000; player.hp = 100; player.st = 100; player.wpn = 'knife';
+    zombies = []; bullets = []; particles = [];
+    showScreen('hud'); spawnWave(); requestAnimationFrame(gameLoop);
 }
 
 function spawnWave() {
-    waveBusy = true; document.getElementById("round-info").innerText = "ROUND " + currentRound;
-    let count = 5 + (currentRound * 3);
-    for(let i=0; i<count; i++) {
-        setTimeout(() => {
-            if(!gameActive) return;
-            let zx, zy;
-            do { zx = Math.random() * WORLD_SIZE; zy = Math.random() * WORLD_SIZE; } 
-            while (isInsideBuilding(zx, zy) || Math.hypot(zx-player.x, zy-player.y) < 300);
-            zombies.push({ x: zx, y: zy, r: 22, hp: 50, s: 1.4 + (currentLvl * 0.2), dmg: 12 });
-            if(i === count - 1) waveBusy = false;
-        }, i * 600);
-    }
+    waveBusy = true;
+    const txt = document.getElementById("round-txt");
+    txt.innerText = currentRound > 3 ? "BOSS FIGHT!" : "ROUND " + currentRound;
+    txt.style.display = "block";
+    setTimeout(() => {
+        txt.style.display = "none";
+        if(currentRound <= 3) {
+            let count = 5 + (currentRound * 5);
+            for(let i=0; i<count; i++) {
+                let ang = Math.random() * Math.PI * 2;
+                zombies.push({ x: player.x + Math.cos(ang)*600, y: player.y + Math.sin(ang)*600, r: 25, hp: 50, s: 2.3 + (currentLvl*0.3), boss: false });
+            }
+        } else { zombies.push({ x: player.x + 400, y: player.y + 400, r: 100, hp: 1500, s: 1.8, boss: true }); }
+        waveBusy = false;
+    }, 2000);
 }
 
 function handleAttack(e) {
     if(e) e.preventDefault();
-    if(player.wpn === 'gun') bullets.push({ x: player.x, y: player.y, vx: joy.lx * 15, vy: joy.ly * 15 });
-    else if(player.st >= 20) {
+    if(player.wpn !== 'knife') {
+        let dmg = player.wpn === 'gun' ? 120 : 60; // Rifle: 120, Pistol: 60
+        bullets.push({ x: player.x, y: player.y, vx: joy.lx * 18, vy: joy.ly * 18, dmg: dmg });
+    } else if(player.st >= 20) {
         player.st -= 20;
-        zombies.forEach((z, i) => { if(Math.hypot(player.x - z.x, player.y - z.y) < 100) { z.hp -= 30; if(z.hp <= 0) { zombies.splice(i, 1); money += 5; sync(); } } });
+        zombies.forEach((z, i) => { 
+            if(Math.hypot(player.x - z.x, player.y - z.y) < 130) { 
+                z.hp -= 40; 
+                if(z.hp <= 0) { spawnBlood(z.x, z.y); zombies.splice(i, 1); money += 10; syncHUD(); save(); } 
+            } 
+        });
     }
 }
 
-// التحكم بالجويستيك
 const jBase = document.getElementById("joy-base"), jStick = document.getElementById("joy-stick");
-jBase.addEventListener("touchstart", (e) => { joy.active = true; updateJoy(e.changedTouches[0]); }, {passive: false});
-window.addEventListener("touchmove", (e) => { if(joy.active) updateJoy(e.changedTouches[0]); }, {passive: false});
-window.addEventListener("touchend", () => { joy.active = false; joy.x = 0; joy.y = 0; jStick.style.transform = "translate(0,0)"; });
-
-function updateJoy(t) {
-    let rect = jBase.getBoundingClientRect(), dx = t.clientX - (rect.left + rect.width/2), dy = t.clientY - (rect.top + rect.height/2);
-    let maxD = rect.width/2, dist = Math.min(Math.hypot(dx, dy), maxD), ang = Math.atan2(dy, dx);
+jBase.addEventListener("touchstart", (e) => { e.preventDefault(); joy.active = true; });
+window.addEventListener("touchmove", (e) => {
+    if(!joy.active) return;
+    let rect = jBase.getBoundingClientRect(), touch = e.changedTouches[0];
+    let dx = touch.clientX - (rect.left + rect.width/2), dy = touch.clientY - (rect.top + rect.height/2);
+    let dist = Math.min(Math.hypot(dx, dy), 40), ang = Math.atan2(dy, dx);
     jStick.style.transform = `translate(${Math.cos(ang)*dist}px, ${Math.sin(ang)*dist}px)`;
-    joy.x = Math.cos(ang) * (dist/maxD); joy.y = Math.sin(ang) * (dist/maxD);
+    joy.x = Math.cos(ang) * (dist/40); joy.y = Math.sin(ang) * (dist/40);
     if(dist > 5) { joy.lx = joy.x; joy.ly = joy.y; }
-}
+}, {passive: false});
+window.addEventListener("touchend", () => { joy.active = false; joy.x = 0; joy.y = 0; jStick.style.transform = "translate(0,0)"; });
 
 function gameLoop() {
     if(!gameActive) return;
     ctx.setTransform(1,0,0,1,0,0);
-    ctx.fillStyle = "#0c0c0c"; ctx.fillRect(0,0,canvas.width,canvas.height);
-    cam.x = player.x - canvas.width/2; cam.y = player.y - canvas.height/2;
-    ctx.translate(-cam.x, -cam.y);
+    ctx.fillStyle = "#0a0a0a"; ctx.fillRect(0,0,canvas.width,canvas.height);
+    const ZOOM = 0.75; 
+    ctx.translate(canvas.width/2 - player.x * ZOOM, canvas.height/2 - player.y * ZOOM);
+    ctx.scale(ZOOM, ZOOM);
 
-    buildings.forEach(b => { ctx.fillStyle = "#1a1a1a"; ctx.fillRect(b.x, b.y, b.w, b.h); ctx.strokeStyle="#333"; ctx.strokeRect(b.x, b.y, b.w, b.h); });
+    ctx.strokeStyle = "#151515";
+    for(let i=0; i<=WORLD_SIZE; i+=100) { ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i, WORLD_SIZE); ctx.stroke(); ctx.beginPath(); ctx.moveTo(0, i); ctx.lineTo(WORLD_SIZE, i); ctx.stroke(); }
 
-    let nx = player.x + joy.x * 7, ny = player.y + joy.y * 7;
-    if(nx > 25 && nx < WORLD_SIZE - 25 && !isInsideBuilding(nx, player.y)) player.x = nx;
-    if(ny > 25 && ny < WORLD_SIZE - 25 && !isInsideBuilding(player.x, ny)) player.y = ny;
+    player.x += joy.x * 9; player.y += joy.y * 9;
+    player.x = Math.max(0, Math.min(WORLD_SIZE, player.x)); player.y = Math.max(0, Math.min(WORLD_SIZE, player.y));
 
-    bullets.forEach((b, i) => {
-        b.x += b.vx; b.y += b.vy; ctx.fillStyle = "#f1c40f"; ctx.beginPath(); ctx.arc(b.x, b.y, 4, 0, 7); ctx.fill();
-        if(isInsideBuilding(b.x, b.y)) bullets.splice(i, 1);
-        zombies.forEach((z, zi) => { if(Math.hypot(b.x - z.x, b.y - z.y) < z.r) { z.hp -= 25; bullets.splice(i, 1); if(z.hp <= 0) { zombies.splice(zi, 1); money += 5; sync(); } } });
-    });
-
-    let now = Date.now();
-    zombies.forEach(z => {
-        let dist = Math.hypot(player.x - z.x, player.y - z.y);
-        let znx = z.x + (player.x - z.x) / dist * z.s, zny = z.y + (player.y - z.y) / dist * z.s;
-        if(!isInsideBuilding(znx, zny)) { z.x = znx; z.y = zny; }
-        ctx.fillStyle = "#e74c3c"; ctx.beginPath(); ctx.arc(z.x, z.y, z.r, 0, 7); ctx.fill();
-        if(dist < 45 && now - player.lastHit > 800) { player.hp -= z.dmg; player.lastHit = now; }
-    });
+    if(player.wpn !== 'knife') {
+        ctx.save(); ctx.translate(player.x, player.y); ctx.rotate(Math.atan2(joy.ly, joy.lx));
+        ctx.fillStyle = "rgba(241, 196, 15, 0.5)"; ctx.beginPath(); ctx.moveTo(55, 0); ctx.lineTo(40, -12); ctx.lineTo(40, 12); ctx.closePath(); ctx.fill(); ctx.restore();
+    }
 
     ctx.fillStyle = "#3498db"; ctx.beginPath(); ctx.arc(player.x, player.y, player.r, 0, 7); ctx.fill();
-    let arrowAng = Math.atan2(joy.ly, joy.lx);
-    ctx.save(); ctx.translate(player.x, player.y); ctx.rotate(arrowAng);
-    ctx.fillStyle = "rgba(255,255,255,0.8)"; ctx.beginPath(); ctx.moveTo(35, 0); ctx.lineTo(25, -6); ctx.lineTo(25, 6); ctx.fill();
-    ctx.restore();
 
-    document.getElementById("hp-bar").style.width = player.hp + "%";
-    document.getElementById("st-bar").style.width = player.st + "%";
+    particles.forEach((p, i) => {
+        p.x += p.vx; p.y += p.vy; p.life -= 0.02;
+        ctx.fillStyle = p.color; ctx.globalAlpha = p.life;
+        ctx.fillRect(p.x, p.y, 6, 6);
+        if(p.life <= 0) particles.splice(i, 1);
+    });
+    ctx.globalAlpha = 1;
+
+    bullets.forEach((b, i) => {
+        b.x += b.vx; b.y += b.vy; ctx.fillStyle = "#f1c40f"; ctx.beginPath(); ctx.arc(b.x, b.y, 5, 0, 7); ctx.fill();
+        zombies.forEach((z, zi) => { if(Math.hypot(b.x-z.x, b.y-z.y) < z.r) { z.hp -= b.dmg; bullets.splice(i, 1); if(z.hp <= 0) { spawnBlood(z.x, z.y); zombies.splice(zi, 1); money += 10; syncHUD(); save(); } } });
+    });
+
+    zombies.forEach(z => {
+        let d = Math.hypot(player.x - z.x, player.y - z.y);
+        z.x += (player.x - z.x)/d * z.s; z.y += (player.y - z.y)/d * z.s;
+        ctx.fillStyle = z.boss ? "#8e44ad" : "#e74c3c"; ctx.beginPath(); ctx.arc(z.x, z.y, z.r, 0, 7); ctx.fill();
+        if(z.boss) { ctx.fillStyle="#000"; ctx.fillRect(z.x-60, z.y-140, 120, 10); ctx.fillStyle="#2ecc71"; ctx.fillRect(z.x-60, z.y-140, (z.hp/1500)*120, 10); }
+        if(d < z.r + player.r && Date.now() - player.lastHit > 800) { player.hp -= z.boss ? 40 : 15; player.lastHit = Date.now(); }
+    });
+
+    document.getElementById("hp-fill").style.width = player.hp + "%";
+    document.getElementById("st-fill").style.width = player.st + "%";
     if(player.st < 100) player.st += 0.4;
 
-    if(!waveBusy && zombies.length === 0) { if(currentRound < 4) { currentRound++; spawnWave(); } else { gameActive = false; unlocked = Math.min(3, unlocked+1); showScreen('main-menu'); } }
+    if(!waveBusy && zombies.length === 0) {
+        currentRound++;
+        if(currentRound > 4) { gameActive = false; unlocked = Math.max(unlocked, currentLvl + 1); save(); showScreen('main-menu'); } 
+        else spawnWave();
+    }
     if(player.hp <= 0) { gameActive = false; showScreen('death-screen'); }
     else requestAnimationFrame(gameLoop);
 }
