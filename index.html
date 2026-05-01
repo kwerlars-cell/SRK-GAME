@@ -3,120 +3,110 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>SRK SURVIVAL - STATS EDITION</title>
+    <title>SRK SURVIVAL - FINAL</title>
     <style>
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; user-select: none; touch-action: none; }
-        body, html { width: 100%; height: 100%; overflow: hidden; background: #000; position: fixed; top: 0; left: 0; overscroll-behavior: none; font-family: sans-serif; }
+        body, html { width: 100%; height: 100%; overflow: hidden; background: #000; position: fixed; font-family: sans-serif; }
         canvas { display: block; width: 100vw; height: 100vh; position: fixed; z-index: 1; }
 
+        /* زر الفول سكرين المضاف */
         #fs-toggle {
-            position: fixed; top: 30px; right: 25px; z-index: 9999;
-            width: 50px; height: 50px; background: rgba(255,255,255,0.1);
+            position: fixed; top: 20px; right: 20px; z-index: 9999;
+            width: 45px; height: 45px; background: rgba(0,0,0,0.6);
             border: 2px solid #fff; border-radius: 50%;
             display: flex; align-items: center; justify-content: center; pointer-events: auto;
         }
-        #fs-toggle svg { width: 24px; height: 24px; fill: white; }
 
-        .overlay { position: fixed; inset: 0; z-index: 100; background: rgba(0,0,0,0.95); display: flex; flex-direction: column; align-items: center; justify-content: center; color: white; }
-        .btn { width: 240px; padding: 18px; margin: 12px; background: #1a1a1a; color: #fff; border: 2px solid #333; border-radius: 20px; font-size: 18px; font-weight: bold; text-align: center; cursor: pointer; pointer-events: auto; }
-        
-        /* شاشة الاسم */
-        input { padding: 15px; border-radius: 15px; border: none; font-size: 18px; text-align: center; margin-bottom: 15px; outline: none; }
-
-        /* جدول الإحصائيات */
-        .stats-table { width: 90%; max-width: 400px; border-collapse: collapse; margin-top: 15px; }
+        .overlay { position: fixed; inset: 0; z-index: 1000; background: rgba(0,0,0,0.95); display: flex; flex-direction: column; align-items: center; justify-content: center; color: white; text-align: center; }
+        .btn { width: 240px; padding: 15px; margin: 10px; background: #1a1a1a; color: #fff; border: 2px solid #444; border-radius: 15px; font-size: 18px; font-weight: bold; cursor: pointer; }
+        input { padding: 15px; border-radius: 10px; border: none; font-size: 18px; text-align: center; margin-bottom: 20px; width: 80%; max-width: 300px; background: #222; color: #fff; border: 1px solid #555; }
+        .stats-table { width: 90%; max-width: 450px; border-collapse: collapse; margin-top: 15px; background: rgba(255,255,255,0.05); }
         .stats-table th, .stats-table td { padding: 12px; border-bottom: 1px solid #333; text-align: center; }
-        .stats-table th { color: #f1c40f; }
-
-        .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
-        .node { width: 70px; height: 70px; background: #222; border: 2px solid #444; border-radius: 15px; display: flex; align-items: center; justify-content: center; font-size: 24px; }
-        .unlocked { border-color: #f1c40f; color: #f1c40f; }
-
-        #hud { position: fixed; inset: 0; pointer-events: none; display: none; z-index: 50; }
-        .top-left { position: absolute; top: 25px; left: 30px; }
-        .bar-bg { width: 140px; height: 12px; background: #111; border: 1px solid #555; border-radius: 6px; margin-bottom: 8px; overflow: hidden; }
-        #hp-bar { width: 100%; height: 100%; background: #e74c3c; transition: width 0.2s; }
+        .lvl-grid { display: flex; gap: 20px; margin-top: 20px; }
+        .lvl-node { width: 70px; height: 70px; background: #222; border: 2px solid #444; border-radius: 15px; display: flex; align-items: center; justify-content: center; font-size: 24px; font-weight: bold; color: #555; }
+        .lvl-active { border-color: #f1c40f; color: #f1c40f; }
+        
+        #hud { position: fixed; inset: 0; pointer-events: none; display: none; z-index: 500; }
+        .hud-stats { position: absolute; top: 20px; left: 20px; }
+        .bar-container { width: 140px; height: 14px; background: #111; border: 1px solid #555; border-radius: 7px; margin-bottom: 6px; overflow: hidden; }
+        #hp-bar { width: 100%; height: 100%; background: #e74c3c; }
         #st-bar { width: 100%; height: 100%; background: #f1c40f; }
-
-        #joy-base { position: absolute; bottom: 60px; left: 60px; width: 110px; height: 110px; background: rgba(255,255,255,0.1); border-radius: 50%; pointer-events: auto; }
-        #joy-stick { position: absolute; top: 30px; left: 30px; width: 50px; height: 50px; background: rgba(255,255,255,0.3); border-radius: 50%; pointer-events: none; }
         
-        #actions { position: absolute; bottom: 60px; right: 60px; display: flex; align-items: center; gap: 20px; pointer-events: auto; }
-        .s-btn { width: 70px; height: 70px; background: rgba(30,30,30,0.8); border: 1px solid #555; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 28px; pointer-events: auto; }
-        #atk-btn { width: 120px; height: 120px; background: rgba(231, 76, 60, 0.4); border: 4px solid #fff; font-size: 50px; pointer-events: auto; border-radius: 50%; }
+        #joy-base { position: absolute; bottom: 50px; left: 40px; width: 100px; height: 100px; background: rgba(255,255,255,0.1); border-radius: 50%; border: 2px solid rgba(255,255,255,0.2); pointer-events: auto; }
+        #joy-stick { position: absolute; top: 25px; left: 25px; width: 50px; height: 50px; background: rgba(255,255,255,0.4); border-radius: 50%; }
         
-        #round-txt { position: fixed; top: 30px; width: 100%; text-align: center; color: #fff; font-size: 24px; font-weight: bold; pointer-events: none; z-index: 40; display: none; }
+        #action-bar { position: absolute; bottom: 40px; right: 30px; display: flex; align-items: center; gap: 15px; pointer-events: auto; }
+        .control-btn { width: 65px; height: 65px; background: rgba(30,30,30,0.8); border: 2px solid #555; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 28px; }
+        #atk-btn { width: 110px; height: 110px; background: rgba(231, 76, 60, 0.4); border: 4px solid #fff; font-size: 50px; border-radius: 50%; }
+        #round-info { position: fixed; top: 25px; width: 100%; text-align: center; color: #fff; font-size: 26px; font-weight: bold; pointer-events: none; z-index: 400; display: none; }
     </style>
 </head>
-<body oncontextmenu="return false;">
+<body>
 
+    <!-- زر الفول سكرين -->
     <div id="fs-toggle" onclick="toggleFullScreen()">
-        <svg viewBox="0 0 24 24"><path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/></svg>
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="white"><path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/></svg>
     </div>
 
-    <!-- شاشة تسجيل الاسم -->
-    <div id="name-screen" class="overlay">
-        <h1 style="color:#e74c3c; margin-bottom: 20px;">SRK SURVIVAL</h1>
-        <input type="text" id="player-name-input" placeholder="ENTER YOUR NAME" maxlength="12">
-        <div class="btn" onclick="login()">START ADVENTURE</div>
+    <div id="login-screen" class="overlay">
+        <h1 style="color:#e74c3c;">SRK SURVIVAL</h1>
+        <input type="text" id="player-name-input" placeholder="ENTER NAME">
+        <div class="btn" onclick="login()">LOGIN</div>
     </div>
 
-    <div id="m-menu" class="overlay" style="display:none">
-        <h2 id="welcome-msg" style="margin-bottom: 10px; color: #f1c40f;"></h2>
+    <div id="main-menu" class="overlay" style="display:none">
+        <h2 id="user-welcome" style="color: #f1c40f;"></h2>
         <div class="btn" onclick="startLevel(unlocked)">PLAY</div>
-        <div class="btn" onclick="showScreen('l-menu')">LEVELS</div>
-        <div class="btn" onclick="showScreen('s-menu')">SHOP</div>
-        <div class="btn" style="background: #2980b9;" onclick="showStats()">PLAYER STATS</div>
+        <div class="btn" onclick="showScreen('level-menu')">LEVELS</div>
+        <div class="btn" onclick="showScreen('shop-menu')">SHOP</div>
+        <div class="btn" style="background: #2980b9;" onclick="showStats()">LEADERBOARD</div>
     </div>
 
     <div id="stats-screen" class="overlay" style="display:none">
-        <h2>PLAYER STATS</h2>
-        <table class="stats-table" id="stats-list">
-            <thead>
-                <tr><th>NAME</th><th>CASH</th><th>LEVEL</th></tr>
-            </thead>
+        <h2>LEADERBOARD</h2>
+        <table class="stats-table" id="leaderboard-body">
+            <thead><tr><th>NAME</th><th>CASH</th><th>LEVEL</th></tr></thead>
             <tbody></tbody>
         </table>
-        <div class="btn" onclick="showScreen('m-menu')">BACK</div>
+        <div class="btn" onclick="showScreen('main-menu')">BACK</div>
     </div>
 
-    <div id="l-menu" class="overlay" style="display:none">
+    <div id="level-menu" class="overlay" style="display:none">
         <h2>LEVELS</h2>
-        <div class="grid" id="level-grid">
-            <div id="L1" class="node unlocked" onclick="startLevel(1)">1</div>
-            <div id="L2" class="node" onclick="startLevel(2)">2</div>
-            <div id="L3" class="node" onclick="startLevel(3)">3</div>
+        <div class="lvl-grid">
+            <div id="LV1" class="lvl-node" onclick="startLevel(1)">1</div>
+            <div id="LV2" class="lvl-node" onclick="startLevel(2)">2</div>
+            <div id="LV3" class="lvl-node" onclick="startLevel(3)">3</div>
         </div>
-        <div class="btn" onclick="showScreen('m-menu')" style="margin-top:20px">BACK</div>
+        <div class="btn" onclick="showScreen('main-menu')" style="margin-top:40px">BACK</div>
     </div>
 
-    <div id="s-menu" class="overlay" style="display:none">
-        <h2>SHOP</h2>
-        <p id="sh-cash" style="color:#2ecc71; font-size: 24px; margin-bottom: 10px;">0$</p>
+    <div id="shop-menu" class="overlay" style="display:none">
+        <h2 id="shop-balance" style="color:#2ecc71;">0$</h2>
         <div class="btn" onclick="buy('gun', 150)">RIFLE (150$)</div>
         <div class="btn" onclick="buy('hp', 50)">MEDKIT (50$)</div>
-        <div class="btn" onclick="showScreen('m-menu')">BACK</div>
+        <div class="btn" onclick="showScreen('main-menu')">BACK</div>
     </div>
 
     <div id="death-screen" class="overlay" style="display:none">
-        <h1 style="color:#e74c3c; font-size: 60px; margin-bottom: 20px;">YOU DIED</h1>
-        <div class="btn" style="background:#e74c3c;" onclick="startLevel(currentLvl)">RETRY</div>
-        <div class="btn" onclick="showScreen('m-menu')">MAIN MENU</div>
+        <h1 style="color:#e74c3c;">YOU DIED</h1>
+        <div class="btn" onclick="startLevel(currentLvl)">RETRY</div>
+        <div class="btn" onclick="showScreen('main-menu')">MENU</div>
     </div>
 
-    <div id="round-txt">ROUND 1</div>
+    <div id="round-info">ROUND 1</div>
 
     <div id="hud">
-        <div class="top-left">
-            <div class="bar-bg"><div id="hp-bar"></div></div>
-            <div class="bar-bg" style="height:8px"><div id="st-bar"></div></div>
-            <div id="cash-txt" style="color:#2ecc71; font-weight:bold; font-size: 22px;">0$</div>
+        <div class="hud-stats">
+            <div class="bar-container"><div id="hp-bar"></div></div>
+            <div class="bar-container" style="height:10px"><div id="st-bar"></div></div>
+            <div id="cash-display" style="color:#2ecc71; font-weight:bold; font-size:20px;">0$</div>
         </div>
         <div id="joy-base"><div id="joy-stick"></div></div>
-        <div id="actions">
-            <div class="s-btn" onclick="buy('hp', 50)">💊</div>
-            <div id="sw-btn" class="s-btn" style="display:none" onclick="swap()">🔄</div>
-            <div id="atk-btn" ontouchstart="attack(event)">⚔️</div>
+        <div id="action-bar">
+            <div class="control-btn" onclick="buy('hp', 50)">💊</div>
+            <div id="swap-btn" class="control-btn" style="display:none" onclick="swapWeapon()">🔄</div>
+            <div id="atk-btn" ontouchstart="handleAttack(event)">⚔️</div>
         </div>
     </div>
 
@@ -124,232 +114,174 @@
 
 <script>
 const canvas = document.getElementById("gameCanvas"), ctx = canvas.getContext("2d");
+const WORLD_SIZE = 2500;
+let cam = { x: 0, y: 0 }, playerName = "", allPlayers = JSON.parse(localStorage.getItem('srk_v2')) || {};
+let money = 0, hasGun = false, unlocked = 1;
 
 function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
-window.addEventListener('resize', resize);
-resize();
+window.addEventListener('resize', resize); resize();
 
+// وظيفة الفول سكرين
 function toggleFullScreen() {
-    if (!document.fullscreenElement) { document.documentElement.requestFullscreen().catch(e => console.log(e)); } 
-    else { document.exitFullscreen(); }
+    if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(e => {});
+    } else {
+        if (document.exitFullscreen) document.exitFullscreen();
+    }
 }
-
-// نظام إدارة اللاعبين
-let playerName = "";
-let allPlayers = JSON.parse(localStorage.getItem('srk_players')) || {};
-let money = 0, hasGun = false, unlocked = 1;
 
 function login() {
     let input = document.getElementById("player-name-input").value.trim().toUpperCase();
-    if(input === "") return alert("PLEASE ENTER NAME!");
-    playerName = input;
-    
-    if(allPlayers[playerName]) {
-        money = allPlayers[playerName].money;
-        hasGun = allPlayers[playerName].hasGun;
-        unlocked = allPlayers[playerName].unlocked;
-    } else {
-        money = 0; hasGun = false; unlocked = 1;
-        savePlayerData();
-    }
-    
-    document.getElementById("welcome-msg").innerText = "WELCOME, " + playerName;
-    showScreen('m-menu');
+    if(!input) return; playerName = input;
+    if(allPlayers[playerName]) { money = allPlayers[playerName].money; hasGun = allPlayers[playerName].hasGun; unlocked = allPlayers[playerName].unlocked; }
+    else { money = 0; hasGun = false; unlocked = 1; save(); }
+    document.getElementById("user-welcome").innerText = "WELCOME, " + playerName;
+    showScreen('main-menu');
 }
 
-function savePlayerData() {
-    allPlayers[playerName] = { money, hasGun, unlocked };
-    localStorage.setItem('srk_players', JSON.stringify(allPlayers));
-}
+function save() { allPlayers[playerName] = { money, hasGun, unlocked }; localStorage.setItem('srk_v2', JSON.stringify(allPlayers)); }
 
 function showStats() {
-    const tbody = document.querySelector("#stats-list tbody");
-    tbody.innerHTML = "";
-    // تحويل البيانات لمصفوفة وترتيبها حسب الفلوس
-    let sorted = Object.keys(allPlayers).map(k => ({name: k, ...allPlayers[k]}))
-                 .sort((a,b) => b.money - a.money);
-    
-    sorted.forEach(p => {
-        tbody.innerHTML += `<tr><td>${p.name}</td><td>${p.money}$</td><td>Lvl ${p.unlocked}</td></tr>`;
-    });
+    const tbody = document.querySelector("#leaderboard-body tbody"); tbody.innerHTML = "";
+    Object.keys(allPlayers).map(k => ({name: k, ...allPlayers[k]})).sort((a,b) => b.money - a.money)
+    .forEach(p => tbody.innerHTML += `<tr><td>${p.name}</td><td>${p.money}$</td><td>${p.unlocked}</td></tr>`);
     showScreen('stats-screen');
 }
 
 let gameActive = false, currentLvl = 1, currentRound = 1, waveBusy = false;
-let player = { x: 0, y: 0, r: 22, hp: 100, st: 100, wpn: 'knife', lastHit: 0 };
-let zombies = [], bullets = [], buildings = [], joy = { active: false, x: 0, y: 0, lx: 1, ly: 0, id: null };
-
-function sync() {
-    savePlayerData();
-    document.getElementById("cash-txt").innerText = money + "$";
-    document.getElementById("sh-cash").innerText = "Cash: " + money + "$";
-    document.getElementById("sw-btn").style.display = hasGun ? "flex" : "none";
-    for(let i=1; i<=3; i++) {
-        let n = document.getElementById("L"+i);
-        if(n) n.className = i <= unlocked ? "node unlocked" : "node";
-    }
-}
+let player = { x: 1250, y: 1250, r: 25, hp: 100, st: 100, wpn: 'knife', lastHit: 0 };
+let zombies = [], bullets = [], buildings = [], joy = { active: false, x: 0, y: 0, lx: 1, ly: 0 };
 
 function showScreen(id) {
     document.querySelectorAll('.overlay').forEach(s => s.style.display = 'none');
     document.getElementById(id).style.display = 'flex';
-    document.getElementById("round-txt").style.display = "none";
+    document.getElementById("hud").style.display = (id === 'hud') ? 'block' : 'none';
+    if(id === 'level-menu') for(let i=1; i<=3; i++) document.getElementById("LV"+i).className = (i<=unlocked)?"lvl-node lvl-active":"lvl-node";
     sync();
+}
+
+function sync() {
+    save();
+    document.getElementById("cash-display").innerText = money + "$";
+    document.getElementById("shop-balance").innerText = money + "$";
+    document.getElementById("swap-btn").style.display = hasGun ? "flex" : "none";
 }
 
 function buy(type, price) {
     if(money >= price) {
         if(type === 'gun' && !hasGun) { hasGun = true; money -= price; }
-        if(type === 'hp') { player.hp = 100; money -= price; }
+        else if(type === 'hp') { player.hp = 100; money -= price; }
         sync();
     }
 }
 
-function swap() {
+function swapWeapon() {
     player.wpn = (player.wpn === 'knife' ? 'gun' : 'knife');
     document.getElementById("atk-btn").innerText = (player.wpn === 'gun' ? '🔫' : '⚔️');
 }
 
-function checkCollision(px, py) {
-    for (let b of buildings) {
-        if (px + player.r > b.x && px - player.r < b.x + b.w && py + player.r > b.y && py - player.r < b.y + b.h) return true;
+function generateBuildings() {
+    buildings = [];
+    for(let i=0; i<15; i++) {
+        buildings.push({
+            x: Math.random() * (WORLD_SIZE - 400) + 200,
+            y: Math.random() * (WORLD_SIZE - 400) + 200,
+            w: 150 + Math.random() * 150,
+            h: 150 + Math.random() * 150
+        });
     }
-    return false;
+}
+
+function isInsideBuilding(x, y) {
+    return buildings.some(b => x > b.x && x < b.x + b.w && y > b.y && y < b.y + b.h);
 }
 
 function startLevel(n) {
     currentLvl = n; currentRound = 1; gameActive = true;
-    document.querySelectorAll('.overlay').forEach(s => s.style.display = 'none');
-    document.getElementById("hud").style.display = "block";
-    document.getElementById("round-txt").style.display = "block";
-    
-    buildings = [];
-    for(let i=0; i<5; i++) {
-        buildings.push({x: 150 + Math.random()*(canvas.width-300), y: 150 + Math.random()*(canvas.height-300), w: 110, h: 110});
+    player.x = 1250; player.y = 1250; player.hp = 100; player.st = 100;
+    generateBuildings(); zombies = []; bullets = [];
+    showScreen('hud'); document.getElementById("round-info").style.display = "block";
+    spawnWave(); gameLoop();
+}
+
+function spawnWave() {
+    waveBusy = true; document.getElementById("round-info").innerText = "ROUND " + currentRound;
+    let count = 5 + (currentRound * 3);
+    for(let i=0; i<count; i++) {
+        setTimeout(() => {
+            if(!gameActive) return;
+            let zx, zy;
+            do { zx = Math.random() * WORLD_SIZE; zy = Math.random() * WORLD_SIZE; } 
+            while (isInsideBuilding(zx, zy) || Math.hypot(zx-player.x, zy-player.y) < 400);
+            zombies.push({ x: zx, y: zy, r: 22, hp: 50, s: 1.5 + (currentLvl * 0.2), dmg: 15 });
+            if(i === count - 1) waveBusy = false;
+        }, i * 600);
     }
-    
-    player.x = canvas.width/2; player.y = canvas.height/2;
-    while(checkCollision(player.x, player.y)) { player.x += 30; if(player.x > canvas.width-50) { player.x=50; player.y+=30; } }
-
-    player.hp = 100; player.st = 100; zombies = []; bullets = [];
-    spawnRound();
-    requestAnimationFrame(loop);
 }
 
-function spawnRound() {
-    waveBusy = true;
-    document.getElementById("round-txt").innerText = "ROUND " + currentRound;
-    
-    setTimeout(() => {
-        let count = (currentRound === 4) ? 1 : (currentRound === 2 ? 12 : 6);
-        for(let i=0; i<count; i++) {
-            setTimeout(() => {
-                if(!gameActive) return;
-                let z = { 
-                    x: Math.random() > 0.5 ? -50 : canvas.width+50, 
-                    y: Math.random()*canvas.height, 
-                    r: 20, hp: 50, s: 1.3, dmg: 20, type: 'normal' 
-                };
-                if(currentRound === 2) { z.s = 2.8; z.hp = 40; z.type = 'fast'; }
-                else if(currentRound === 3) { z.r = 35; z.s = 0.8; z.hp = 35; z.dmg = 50; z.type = 'tank'; }
-                else if(currentRound === 4) { z.r = 60; z.s = 2.2; z.hp = 1000; z.dmg = 40; z.isBoss = true; }
-                zombies.push(z);
-                if(i === count-1) waveBusy = false;
-            }, i * 700);
-        }
-    }, 1000);
-}
-
-function attack(e) {
+function handleAttack(e) {
     if(e) e.preventDefault();
-    if(player.wpn === 'gun') {
-        bullets.push({ x: player.x, y: player.y, vx: joy.lx*15, vy: joy.ly*15 });
-    } else if(player.st >= 20) {
+    if(player.wpn === 'gun') bullets.push({ x: player.x, y: player.y, vx: joy.lx * 16, vy: joy.ly * 16 });
+    else if(player.st >= 20) {
         player.st -= 20;
-        zombies.forEach((z, i) => {
-            if(Math.hypot(player.x-z.x, player.y-z.y) < (z.type === 'tank' ? 120 : 100)) {
-                z.hp -= 20; 
-                if(z.hp <= 0) { zombies.splice(i,1); money += z.isBoss ? 500 : 25; sync(); }
-            }
-        });
+        zombies.forEach((z, i) => { if(Math.hypot(player.x - z.x, player.y - z.y) < 110) { z.hp -= 30; if(z.hp <= 0) { zombies.splice(i, 1); money += 5; sync(); } } });
     }
 }
 
 const jBase = document.getElementById("joy-base"), jStick = document.getElementById("joy-stick");
-jBase.addEventListener("touchstart", (e) => {
-    let t = e.changedTouches[0]; joy.active = true; joy.id = t.identifier; handleJoy(t);
-}, {passive: false});
+jBase.addEventListener("touchstart", (e) => { joy.active = true; updateJoy(e.changedTouches[0]); }, {passive: false});
+window.addEventListener("touchmove", (e) => { if(joy.active) updateJoy(e.changedTouches[0]); }, {passive: false});
+window.addEventListener("touchend", () => { joy.active = false; joy.x = 0; joy.y = 0; jStick.style.transform = "translate(0,0)"; });
 
-window.addEventListener("touchmove", (e) => {
-    if(!joy.active) return;
-    for(let t of e.changedTouches) { if(t.identifier === joy.id) handleJoy(t); }
-}, {passive: false});
-
-window.addEventListener("touchend", (e) => {
-    for(let t of e.changedTouches) { if(t.identifier === joy.id) { joy.active=false; joy.x=0; joy.y=0; jStick.style.transform="translate(0,0)"; } }
-});
-
-function handleJoy(t) {
-    let b = jBase.getBoundingClientRect();
-    let dx = t.clientX - (b.left + 55), dy = t.clientY - (b.top + 55);
-    let d = Math.min(Math.hypot(dx, dy), 45), ang = Math.atan2(dy, dx);
-    jStick.style.transform = `translate(${Math.cos(ang)*d}px, ${Math.sin(ang)*d}px)`;
-    joy.x = Math.cos(ang) * (d/45); joy.y = Math.sin(ang) * (d/45);
-    if(d > 5) { joy.lx = joy.x; joy.ly = joy.y; }
+function updateJoy(t) {
+    let rect = jBase.getBoundingClientRect(), dx = t.clientX - (rect.left + 50), dy = t.clientY - (rect.top + 50);
+    let dist = Math.min(Math.hypot(dx, dy), 40), ang = Math.atan2(dy, dx);
+    jStick.style.transform = `translate(${Math.cos(ang)*dist}px, ${Math.sin(ang)*dist}px)`;
+    joy.x = Math.cos(ang) * (dist/40); joy.y = Math.sin(ang) * (dist/40);
+    if(dist > 5) { joy.lx = joy.x; joy.ly = joy.y; }
 }
 
-function loop() {
+function gameLoop() {
     if(!gameActive) return;
+    ctx.setTransform(1,0,0,1,0,0);
     ctx.fillStyle = "#0c0c0c"; ctx.fillRect(0,0,canvas.width,canvas.height);
-    ctx.fillStyle = "#1a1a1a"; buildings.forEach(b => ctx.fillRect(b.x, b.y, b.w, b.h));
+    cam.x = player.x - canvas.width/2; cam.y = player.y - canvas.height/2;
+    ctx.translate(-cam.x, -cam.y);
 
-    let nx = player.x + joy.x*6.5, ny = player.y + joy.y*6.5;
-    if(!checkCollision(nx, ny)) { player.x = nx; player.y = ny; }
+    buildings.forEach(b => { ctx.fillStyle = "#1a1a1a"; ctx.fillRect(b.x, b.y, b.w, b.h); ctx.strokeStyle="#333"; ctx.strokeRect(b.x, b.y, b.w, b.h); });
+
+    let nx = player.x + joy.x * 7, ny = player.y + joy.y * 7;
+    if(nx > 30 && nx < WORLD_SIZE - 30 && !isInsideBuilding(nx, player.y)) player.x = nx;
+    if(ny > 30 && ny < WORLD_SIZE - 30 && !isInsideBuilding(player.x, ny)) player.y = ny;
 
     bullets.forEach((b, i) => {
-        b.x += b.vx; b.y += b.vy; ctx.fillStyle="#f1c40f"; ctx.fillRect(b.x, b.y, 6, 6);
-        zombies.forEach((z, zi) => {
-            if(Math.hypot(b.x-z.x, b.y-z.y) < z.r) { 
-                z.hp -= 20; bullets.splice(i,1); 
-                if(z.hp <= 0) { zombies.splice(zi,1); money += z.isBoss ? 500 : 25; sync(); } 
-            }
-        });
-        if(b.x<0||b.x>canvas.width||b.y<0||b.y>canvas.height) bullets.splice(i,1);
+        b.x += b.vx; b.y += b.vy; ctx.fillStyle = "#f1c40f"; ctx.beginPath(); ctx.arc(b.x, b.y, 4, 0, 7); ctx.fill();
+        if(isInsideBuilding(b.x, b.y)) bullets.splice(i, 1);
+        zombies.forEach((z, zi) => { if(Math.hypot(b.x - z.x, b.y - z.y) < z.r) { z.hp -= 20; bullets.splice(i, 1); if(z.hp <= 0) { zombies.splice(zi, 1); money += 5; sync(); } } });
     });
 
     let now = Date.now();
     zombies.forEach(z => {
-        let dist = Math.hypot(player.x-z.x, player.y-z.y);
-        if(dist > player.r + z.r - 2) {
-            z.x += ((player.x-z.x)/dist)*z.s; z.y += ((player.y-z.y)/dist)*z.s;
-        } else if(now - player.lastHit > 600) {
-            player.hp -= z.dmg; player.lastHit = now;
-        }
-        if(z.isBoss) ctx.fillStyle = "#9b59b6";
-        else if(z.type === 'fast') ctx.fillStyle = "#f1c40f";
-        else if(z.type === 'tank') ctx.fillStyle = "#e67e22";
-        else ctx.fillStyle = "#e74c3c";
-        ctx.beginPath(); ctx.arc(z.x, z.y, z.r, 0, 7); ctx.fill();
+        let dist = Math.hypot(player.x - z.x, player.y - z.y);
+        let znx = z.x + (player.x - z.x) / dist * z.s, zny = z.y + (player.y - z.y) / dist * z.s;
+        if(!isInsideBuilding(znx, zny)) { z.x = znx; z.y = zny; }
+        ctx.fillStyle = "#e74c3c"; ctx.beginPath(); ctx.arc(z.x, z.y, z.r, 0, 7); ctx.fill();
+        if(dist < 45 && now - player.lastHit > 800) { player.hp -= z.dmg; player.lastHit = now; }
     });
 
     ctx.fillStyle = "#3498db"; ctx.beginPath(); ctx.arc(player.x, player.y, player.r, 0, 7); ctx.fill();
+    let arrowAng = Math.atan2(joy.ly, joy.lx);
+    ctx.save(); ctx.translate(player.x, player.y); ctx.rotate(arrowAng);
+    ctx.fillStyle = "rgba(255,255,255,0.8)"; ctx.beginPath(); ctx.moveTo(40, 0); ctx.lineTo(30, -7); ctx.lineTo(30, 7); ctx.fill();
+    ctx.restore();
 
-    if(player.st < 100) player.st += 0.8;
     document.getElementById("hp-bar").style.width = player.hp + "%";
     document.getElementById("st-bar").style.width = player.st + "%";
+    if(player.st < 100) player.st += 0.5;
 
-    if(!waveBusy && zombies.length === 0) {
-        if(currentRound < 4) { currentRound++; spawnRound(); }
-        else { gameActive = false; unlocked = Math.min(3, unlocked+1); sync(); showScreen('m-menu'); }
-    }
-
-    if(player.hp <= 0) {
-        gameActive = false;
-        document.getElementById("death-screen").style.display = "flex";
-        document.getElementById("hud").style.display = "none";
-        document.getElementById("round-txt").style.display = "none";
-        sync();
-    } else { requestAnimationFrame(loop); }
+    if(!waveBusy && zombies.length === 0) { if(currentRound < 4) { currentRound++; spawnWave(); } else { gameActive = false; unlocked = Math.min(3, unlocked+1); showScreen('main-menu'); } }
+    if(player.hp <= 0) { gameActive = false; showScreen('death-screen'); }
+    else requestAnimationFrame(gameLoop);
 }
 </script>
 </body>
